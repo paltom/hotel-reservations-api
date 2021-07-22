@@ -1,0 +1,13 @@
+{
+    "name": "Python3",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "extensions": [
+        "ms-python.python",
+        "magicstack.magicpython",
+        "alexcvzz.vscode-sqlite"
+    ],
+    "remoteUser": "vscode",
+    "postCreateCommand": "bash dev/scripts/container-setup.sh"
+}
