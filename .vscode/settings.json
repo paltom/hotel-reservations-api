@@ -1,0 +1,8 @@
+{
+    "python.autoComplete.extraPaths": [
+        "hra"
+    ],
+    "python.analysis.extraPaths": [
+        "hra"
+    ]
+}
