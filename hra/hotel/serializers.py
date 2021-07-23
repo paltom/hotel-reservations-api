@@ -15,8 +15,6 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    duration = serializers.SerializerMethodField()
-
     class Meta:
         model = Reservation
         fields = [
@@ -26,6 +24,3 @@ class ReservationSerializer(serializers.ModelSerializer):
             'rooms',
             'total_cost',
             'duration']
-
-    def get_duration(self, obj):
-        return obj.duration.days

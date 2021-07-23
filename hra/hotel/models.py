@@ -28,11 +28,12 @@ class Reservation(models.Model):
 
     @property
     def total_cost(self):
-        return sum([r.room_class.price for r in self.rooms.iterator()])
+        return sum(
+            [r.room_class.price for r in self.rooms.iterator()]) * self.duration
 
     @property
     def duration(self):
-        return self.date_to - self.date_from
+        return (self.date_to - self.date_from).days
 
 
 class Room(models.Model):
