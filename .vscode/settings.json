@@ -4,5 +4,9 @@
     ],
     "python.analysis.extraPaths": [
         "hra"
+    ],
+    "python.formatting.autopep8Args": [
+        "--aggressive",
+        "--aggressive"
     ]
 }

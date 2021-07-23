@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from hotel.models import Room, RoomClass
+from hotel.models import Room, RoomClass, Reservation
 
 
 class RoomClassSerializer(serializers.ModelSerializer):
@@ -12,3 +12,20 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = ['number', 'room_class']
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    duration = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'date_from',
+            'date_to',
+            'name',
+            'rooms',
+            'total_cost',
+            'duration']
+
+    def get_duration(self, obj):
+        return obj.duration.days
