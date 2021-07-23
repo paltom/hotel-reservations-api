@@ -24,3 +24,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             'rooms',
             'total_cost',
             'duration']
+
+    def validate_rooms(self, rooms):
+        if not len(rooms):
+            raise serializers.ValidationError(
+                'Reservation has to have at least one room')
+        return rooms

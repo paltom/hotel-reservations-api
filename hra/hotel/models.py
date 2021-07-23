@@ -40,10 +40,6 @@ class Room(models.Model):
     number = models.CharField('room number', primary_key=True, max_length=5)
     room_class = models.ForeignKey(
         RoomClass, on_delete=models.CASCADE, related_name='rooms+')
-    reservation = models.ForeignKey(
+    reservation = models.ManyToManyField(
         Reservation,
-        on_delete=models.SET_NULL,
-        related_name='rooms',
-        null=True,
-        blank=True,
-        default=None)
+        related_name='rooms')
