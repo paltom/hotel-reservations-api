@@ -8,6 +8,7 @@ class RoomClass(models.Model):
     room_class = models.CharField(
         'class of the room',
         primary_key=True,
+        blank=False,
         max_length=1,
         validators=[
             RegexValidator('[A-Z]')])
@@ -20,11 +21,25 @@ class RoomClass(models.Model):
                 Decimal('0.00'))])
 
 
+class Room(models.Model):
+    number = models.CharField(
+        'room number',
+        primary_key=True,
+        blank=False,
+        max_length=5)
+    room_class = models.ForeignKey(
+        RoomClass, on_delete=models.CASCADE, related_name='rooms+')
+
+
 class Reservation(models.Model):
     date_from = models.DateField('start date of reservation')
     date_to = models.DateField('end date of reservation')
     name = models.CharField(
         'name of the person who made reservation', max_length=100)
+    rooms = models.ManyToManyField(
+        Room,
+        # symmetrical=False,
+        related_name='reservations')
 
     @property
     def total_cost(self):
@@ -34,12 +49,3 @@ class Reservation(models.Model):
     @property
     def duration(self):
         return (self.date_to - self.date_from).days
-
-
-class Room(models.Model):
-    number = models.CharField('room number', primary_key=True, max_length=5)
-    room_class = models.ForeignKey(
-        RoomClass, on_delete=models.CASCADE, related_name='rooms+')
-    reservation = models.ManyToManyField(
-        Reservation,
-        related_name='rooms')
