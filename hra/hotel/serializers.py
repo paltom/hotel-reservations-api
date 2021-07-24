@@ -62,9 +62,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             date_to: date) -> bool:
         # room is available if both date_from and date_to are before other
         # reservations' start date or after other reservations' end date
-        reservations = Reservation.objects.filter(
+        reservation_collisions = Reservation.objects.filter(
             (Q(date_from__lt=date_from) | Q(date_from__lt=date_to)) &
             (Q(date_to__gt=date_from) | Q(date_to__gt=date_to)),
             rooms__number=room.number)
-        # If any reservation fails above test, room is not available
-        return not reservations.count()
+        # If any reservation passes above test, room is not available
+        return not reservation_collisions.count()
