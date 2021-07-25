@@ -158,10 +158,10 @@ class ReservationSearchTest(APITestCase):
             name='Smith'
         )
         self.reservation.rooms.set([self.room])
-        self.uri = self.uri + '?'
 
     def _search_uri(self, **kwargs):
-        return self.uri + '&'.join(k + '=' + str(v) for k, v in kwargs.items())
+        return self.uri + '?' + '&'.join(k + '=' + str(v)
+                                         for k, v in kwargs.items())
 
     def _assert_response_pos(self, response):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -274,3 +274,12 @@ class ReservationSearchTest(APITestCase):
             self._search_uri(
                 duration='something'))
         self._assert_response_exc(response)
+
+    def test_only_in_list_view(self):
+        response = self.client.get(self.uri +
+                                   str(self.reservation.id) +
+                                   '/?' +
+                                   'date_from={}'.format(self.reservation.date_from +
+                                                         timedelta(1)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], self.reservation.id)
