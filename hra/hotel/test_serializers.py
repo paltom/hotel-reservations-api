@@ -143,7 +143,8 @@ class ReservationSerializerTest(TestCase):
             'duration': 1,
             'name': 'Brown',
             'rooms': ['T1'],
-            'total_cost': 10
+            'total_cost': 10,
+            'id': 1
         }
         self.reservation_deserializer_valid_data = {
             'date_from': date.today().isoformat(),
