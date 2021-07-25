@@ -138,16 +138,16 @@ class ReservationSerializerTest(TestCase):
 
     def setUp(self):
         self.reservation_valid_attributes = {
-            'date_from': '2021-07-22',
-            'date_to': '2021-07-23',
+            'date_from': (date.today() + timedelta(7)).isoformat(),
+            'date_to': (date.today() + timedelta(8)).isoformat(),
             'duration': 1,
             'name': 'Brown',
             'rooms': ['T1'],
             'total_cost': 10
         }
         self.reservation_deserializer_valid_data = {
-            'date_from': '2021-07-23',
-            'date_to': '2021-07-26',
+            'date_from': date.today().isoformat(),
+            'date_to': (date.today() + timedelta(3)).isoformat(),
             'name': 'Smith',
             'rooms': ['T1', 'S2']
         }
@@ -207,9 +207,13 @@ class ReservationSerializerTest(TestCase):
 
     def test_start_date_after_or_equal_to_end_date(self):
         self._test_invalid_fields_deserialization(
-            'non_field_errors', date_from='2021-07-20', date_to='2021-07-20')
+            'non_field_errors',
+            date_from=date.today().isoformat(),
+            date_to=date.today().isoformat())
         self._test_invalid_fields_deserialization(
-            'non_field_errors', date_from='2021-07-30', date_to='2021-07-20')
+            'non_field_errors',
+            date_from=(date.today() + timedelta(2)).isoformat(),
+            date_to=date.today().isoformat())
 
     def test_rooms_empty(self):
         self._test_invalid_fields_deserialization(rooms=[])
@@ -223,3 +227,7 @@ class ReservationSerializerTest(TestCase):
                 self.reservation.rooms.all()[0].number],
             date_from=self.reservation.date_from - timedelta(1),
             date_to=self.reservation.date_to + timedelta(1))
+
+    def test_start_date_in_the_past(self):
+        self._test_invalid_fields_deserialization(
+            date_from=date.today() - timedelta(1))

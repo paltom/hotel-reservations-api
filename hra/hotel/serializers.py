@@ -22,13 +22,19 @@ class ReservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = [
-            'id',
             'date_from',
             'date_to',
             'name',
             'rooms',
             'total_cost',
             'duration']
+        read_only_fields = ['id']
+
+    def validate_date_from(self, value: date):
+        if value < date.today():
+            raise serializers.ValidationError(
+                'Reservation cannot start in the past')
+        return value
 
     def validate_rooms(self, rooms):
         if not len(rooms):
