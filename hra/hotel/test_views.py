@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 from decimal import Decimal
-import unittest
 
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -140,3 +139,138 @@ class ReservationViewsTest(APITestCase):
         response = self.client.delete(self.reservation_uri)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Reservation.objects.count(), 0)
+
+
+class ReservationSearchTest(APITestCase):
+    """
+    Test suite for reservations searching.
+    """
+    uri = '/reservations/'
+
+    def setUp(self):
+        self.room_class = RoomClass.objects.create(
+            room_class='T', price=Decimal('30'))
+        self.room = Room.objects.create(
+            number='123', room_class=self.room_class)
+        self.reservation = Reservation.objects.create(
+            date_from=date.today(),
+            date_to=date.today() + timedelta(3),
+            name='Smith'
+        )
+        self.reservation.rooms.set([self.room])
+        self.uri = self.uri + '?'
+
+    def _search_uri(self, **kwargs):
+        return self.uri + '&'.join(k + '=' + str(v) for k, v in kwargs.items())
+
+    def _assert_response_pos(self, response):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def _assert_response_neg(self, response):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def _assert_response_exc(self, response):
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_by_room_number_pos(self):
+        response = self.client.get(
+            self._search_uri(
+                room_number=self.room.number))
+        self._assert_response_pos(response)
+
+    def test_search_by_room_number_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                room_number=self.room.number + '13'))
+        self._assert_response_neg(response)
+
+    def test_search_by_name_pos(self):
+        # also searches for partial names
+        response = self.client.get(
+            self._search_uri(
+                name=self.reservation.name[1:-2]))
+        self._assert_response_pos(response)
+
+    def test_search_by_name_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                name='whoever'))
+        self._assert_response_neg(response)
+
+    def test_search_by_date_pos(self):
+        response = self.client.get(
+            self._search_uri(
+                date=date.today()))
+        self._assert_response_pos(response)
+
+    def test_search_by_date_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                date=date.today() + timedelta(5)))
+        self._assert_response_neg(response)
+
+    def test_search_by_date_exc(self):
+        response = self.client.get(
+            self._search_uri(
+                date='something'))
+        self._assert_response_exc(response)
+
+    def test_search_by_date_from_pos(self):
+        response = self.client.get(
+            self._search_uri(
+                date_from=date.today()))
+        self._assert_response_pos(response)
+
+    def test_search_by_date_from_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                date_from=date.today() + timedelta(1)))
+        self._assert_response_neg(response)
+
+    def test_search_by_date_from_exc(self):
+        response = self.client.get(
+            self._search_uri(
+                date_from='something'))
+        self._assert_response_exc(response)
+
+    def test_search_by_date_to_pos(self):
+        response = self.client.get(
+            self._search_uri(
+                date_to=date.today() + timedelta(3)))
+        self._assert_response_pos(response)
+
+    def test_search_by_date_to_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                date_to=date.today() + timedelta(2)))
+        self._assert_response_neg(response)
+
+    def test_search_by_date_to_exc(self):
+        response = self.client.get(
+            self._search_uri(
+                date_to='something'))
+        self._assert_response_exc(response)
+
+    def test_search_by_duration_pos(self):
+        response = self.client.get(
+            self._search_uri(
+                duration=(
+                    self.reservation.date_to -
+                    self.reservation.date_from).days))
+        self._assert_response_pos(response)
+
+    def test_search_by_duration_neg(self):
+        response = self.client.get(
+            self._search_uri(
+                duration=(
+                    self.reservation.date_to -
+                    self.reservation.date_from).days + 2))
+        self._assert_response_neg(response)
+
+    def test_search_by_duration_exc(self):
+        response = self.client.get(
+            self._search_uri(
+                duration='something'))
+        self._assert_response_exc(response)
