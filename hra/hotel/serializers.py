@@ -53,7 +53,8 @@ class ReservationSerializer(serializers.ModelSerializer):
         if any(not self._is_available(r, date_from, date_to)
                for r in rooms):
             raise serializers.ValidationError(
-                'One of the rooms is not available for reservation within given time')
+                'Selected rooms are not available for reservation within given time. '
+                'Try different rooms or different reservation time.')
 
     def _is_available(
             self,
