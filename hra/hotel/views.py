@@ -24,3 +24,11 @@ class ReservationViewSet(ModelViewSet):
     """
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+
+    def partial_update(self, request, pk: int, **kwargs):
+        # to satisfy validator, add rooms from reservation if they're not
+        # getting updated
+        if 'rooms' not in request.data:
+            request.data.update({'rooms': [r['number'] for r in list(
+                Reservation.objects.get(pk=pk).rooms.values('number').iterator())]})
+        return super().partial_update(request, pk, **kwargs)

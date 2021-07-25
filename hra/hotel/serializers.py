@@ -55,7 +55,7 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     def _validate_rooms_available(self, rooms, date_from, date_to):
         """
-        Checks if all rooms are available within given time period
+        Checks if all rooms are available within given time period.
         """
         if any(not self._is_available(r, date_from, date_to)
                for r in rooms):
@@ -74,5 +74,9 @@ class ReservationSerializer(serializers.ModelSerializer):
             (Q(date_from__lt=date_from) | Q(date_from__lt=date_to)) &
             (Q(date_to__gt=date_from) | Q(date_to__gt=date_to)),
             rooms__number=room.number)
+        if self.instance is not None:
+            # Updating existing reservation, so remove it from collisions
+            reservation_collisions = reservation_collisions.exclude(
+                pk=self.instance.id)
         # If any reservation passes above test, room is not available
         return not reservation_collisions.count()
