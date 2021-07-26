@@ -142,7 +142,7 @@ paths:
         - name: room_number
           in: query
           required: false
-          description: Search for reservations that have this room number assigned.
+          description: Search for reservations that have this room number assigned. Can be given multiple times to include more rooms.
           schema:
             type: string
         - name: name
