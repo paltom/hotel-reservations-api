@@ -1,0 +1,354 @@
+openapi: 3.0.2
+info:
+  title: 'Hotel Reservations API'
+  version: '0.5.0'
+paths:
+  /rooms/:
+    get:
+      operationId: listRooms
+      description: List all rooms.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+      tags:
+      - rooms
+    post:
+      operationId: createRoom
+      description: Create a new room.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Room'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+      tags:
+      - rooms
+  /rooms/{number}/:
+    get:
+      operationId: retrieveRoom
+      description: List room details.
+      parameters:
+      - name: number
+        in: path
+        required: true
+        description: A room number.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+          description: ''
+      tags:
+      - rooms
+    put:
+      operationId: updateRoom
+      description: Modify entire room. Note that only value that makes sense to be changed is room class.
+      parameters:
+      - name: number
+        in: path
+        required: true
+        description: A room number.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Room'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+      tags:
+      - rooms
+    patch:
+      operationId: partialUpdateRoom
+      description: Modify room. Note that only value that makes sense to be changed is room class.
+      parameters:
+      - name: number
+        in: path
+        required: true
+        description: A room number.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Room'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Room'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Room'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+      tags:
+      - rooms
+    delete:
+      operationId: destroyRoom
+      description: Delete room. Room that has reservations, either in future or in the past, cannot be deleted.
+      parameters:
+      - name: number
+        in: path
+        required: true
+        description: A room number.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - rooms
+  /reservations/:
+    get:
+      operationId: listReservations
+      description: List all reservations or search for reservations with various criteria, if any or query parameters are provided.
+      parameters:
+        - name: room_number
+          in: query
+          required: false
+          description: Search for reservations that have this room number assigned.
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          description: Search for reservations that are for this (partial) name.
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: false
+          description: Search for reservations that are active within given date. `date_from` is before or at given date and `date_to` is after or at given date.
+          schema:
+            type: string
+            format: date
+        - name: date_from
+          in: query
+          required: false
+          description: Search for reservations that start at given date.
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          required: false
+          description: Search for reservations that end at given date.
+          schema:
+            type: string
+            format: date
+        - name: duration
+          in: query
+          required: false
+          description: Search for reservations that last given amount of days.
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+      tags:
+      - reservations
+    post:
+      operationId: createReservation
+      description: Create a new reservation. If rooms selected are already booked within given date range, reservation cannot be created. Reservation has to be created for future date.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      tags:
+      - reservations
+  /reservations/{id}/:
+    get:
+      operationId: retrieveReservation
+      description: Get reservation details.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Reservation id. Can be obtained from reservation list.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      tags:
+      - reservations
+    put:
+      operationId: updateReservation
+      description: Modify entire reservation. If rooms selected are already booked within given date range in another reservation, reservation cannot be created.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Reservation id. Can be obtained from reservation list.
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      tags:
+      - reservations
+    patch:
+      operationId: partialUpdateReservation
+      description: Modify (part of) reservation. If rooms selected are already booked within given date range in another reservation, reservation cannot be created.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Reservation id. Can be obtained from reservation list.
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      tags:
+      - reservations
+    delete:
+      operationId: destroyReservation
+      description: Delete a reservation.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Reservation id. Can be obtained from reservation list.
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: ''
+      tags:
+      - reservations
+components:
+  schemas:
+    Room:
+      type: object
+      properties:
+        number:
+          type: string
+          maxLength: 5
+        room_class:
+          type: string
+      required:
+      - number
+      - room_class
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        date_from:
+          type: string
+          format: date
+          description: Start date of the reservation. Cannot be in the past.
+        date_to:
+          type: string
+          format: date
+          description: End date of the reservation. Has to be after start date.
+        name:
+          type: string
+          maxLength: 100
+          description: Name of the person for whom reservation is created.
+        rooms:
+          type: array
+          items:
+            type: string
+          description: A list of room numbers that are reserved.
+        total_cost:
+          type: string
+          readOnly: true
+          description: Total cost of the reservation.
+        duration:
+          type: string
+          readOnly: true
+          description: For how many days reservation is made.
+      required:
+      - date_from
+      - date_to
+      - name
+      - rooms
