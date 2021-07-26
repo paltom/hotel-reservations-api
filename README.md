@@ -2,9 +2,9 @@
 Simple WebAPI to manage hotel reservations.
 
 ## Technologies used
-- Python 3.9.6 (Python 3.9 is required to run code)
-- Django 3.2.5
-- Django REST Framework 3.12.4
+- Python 3.9.6+ (Python 3.9 is required to run code)
+- Django 3.2.5+
+- Django REST Framework 3.12.4+
 - SQLite database (default Django configuration)
 
 ## API features
@@ -52,3 +52,28 @@ API supports also [browseable api](https://www.django-rest-framework.org/topics/
         Reservations lasting given number of days.
 
     Search parameters can be combined together to narrow down results.
+
+## Running
+
+Run application as usual DRF API:
+```bash
+cd hra
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+```
+
+Reservation API is dockerized.
+
+Docker image file location: `docker/Dockerfile`. Note that docker image uses github repository instead of current directory to build a clean version without the need to remove unnecessary files from working directory in the machine where it's built.
+
+### Building docker image
+```bash
+docker build -f docker/Dockerfile -t hotel-api .
+```
+### Running docker image
+```bash
+docker run -d -p 8000:8000 hotel-api
+```
+
+API should now be visible under http://localhost:8000. Thanks to browseable API, it can be interacted with using web browser.
