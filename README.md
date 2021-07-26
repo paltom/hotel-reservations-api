@@ -63,6 +63,8 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## Docker
+
 Reservation API is dockerized.
 
 Docker image file location: `docker/Dockerfile`. Note that docker image uses github repository instead of current directory to build a clean version without the need to remove unnecessary files from working directory in the machine where it's built.
@@ -83,3 +85,5 @@ API should now be visible under http://localhost:8000. Thanks to browseable API,
 - [ ] Use real, separate DB, not default embedded SQLite
 - [ ] Turn off `DEBUG` in `hra/settings.py`
 - [ ] Search using [django-filter](https://django-filter.readthedocs.io/en/latest/index.html) library
+
+## Useful links
