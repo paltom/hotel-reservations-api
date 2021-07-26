@@ -77,3 +77,8 @@ docker run -d -p 8000:8000 hotel-api
 ```
 
 API should now be visible under http://localhost:8000. Thanks to browseable API, it can be interacted with using web browser.
+
+## Things to improve
+- [ ] Add authentication and security
+- [ ] Use real, separate DB, not default embedded SQLite
+- [ ] Turn off `DEBUG` in `hra/settings.py`
