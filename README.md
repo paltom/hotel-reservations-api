@@ -82,3 +82,4 @@ API should now be visible under http://localhost:8000. Thanks to browseable API,
 - [ ] Add authentication and security
 - [ ] Use real, separate DB, not default embedded SQLite
 - [ ] Turn off `DEBUG` in `hra/settings.py`
+- [ ] Search using [django-filter](https://django-filter.readthedocs.io/en/latest/index.html) library
