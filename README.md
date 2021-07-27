@@ -88,3 +88,14 @@ API should now be visible under http://localhost:8000. Thanks to browseable API,
 - [ ] Descriptive and full error messages (e.g from all validations)
 
 ## Useful links
+- https://www.django-rest-framework.org/
+    - https://www.django-rest-framework.org/topics/browsable-api/
+    - https://www.django-rest-framework.org/api-guide/testing/
+    - https://www.django-rest-framework.org/api-guide/filtering/
+    - https://www.django-rest-framework.org/api-guide/serializers/
+    - https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
+- https://docs.djangoproject.com/en/3.2/topics/
+    - https://docs.djangoproject.com/en/3.2/ref/models/
+    - https://docs.djangoproject.com/en/3.2/topics/db/queries/#
+    - https://docs.djangoproject.com/en/3.2/ref/models/querysets/
+- https://httpie.io/docs
