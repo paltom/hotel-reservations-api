@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 from decimal import Decimal
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -67,10 +69,12 @@ class RoomViewsTest(APITestCase):
         self.assertEqual(Room.objects.count(), 0)
 
     def test_delete_reserved_room(self):
+        owner = User.objects.create(username='test', last_name='Brown')
         Reservation.objects.create(
             date_from=date.today() + timedelta(1),
             date_to=date.today() + timedelta(2),
-            name='Smith'
+            name='Smith',
+            owner=owner
         ).rooms.set([self.room])
         response = self.client.delete(self.room_uri)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -90,13 +94,22 @@ class ReservationViewsTest(APITestCase):
             room_class='T', price=Decimal('30'))
         self.room = Room.objects.create(
             number='123', room_class=self.room_class)
+        self.password = 'testpass'
+        self.owner = User.objects.create(
+            username='test',
+            last_name='Brown',
+            password=make_password(self.password))
         self.reservation = Reservation.objects.create(
             date_from=date.today(),
             date_to=date.today() + timedelta(3),
-            name='Smith'
+            name='Smith',
+            owner=self.owner
         )
         self.reservation.rooms.set([self.room])
         self.reservation_uri = self.uri + str(self.reservation.id) + '/'
+        self.client.login(
+            username=self.owner.username,
+            password=self.password)
 
     def test_list_reservations(self):
         response = self.client.get(self.uri)
@@ -111,6 +124,17 @@ class ReservationViewsTest(APITestCase):
                                      'name': 'Smith'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Reservation.objects.count(), 2)
+
+    def test_create_reservation_with_owner_name(self):
+        response = self.client.post(self.uri,
+                                    {'rooms': ['123'],
+                                     'date_from': date.today() + timedelta(7),
+                                     'date_to': date.today() + timedelta(9)})
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Reservation.objects.count(), 2)
+        self.assertIn(
+            self.owner.last_name, [
+                r['name'] for r in Reservation.objects.values('name').iterator()])
 
     def test_reservation_detail(self):
         response = self.client.get(self.reservation_uri)
@@ -152,12 +176,20 @@ class ReservationSearchTest(APITestCase):
             room_class='T', price=Decimal('30'))
         self.room = Room.objects.create(
             number='123', room_class=self.room_class)
+        self.password = 'testpass'
+        self.owner = User.objects.create(
+            username='test',
+            last_name='Brown',
+            password=make_password(
+                self.password))
         self.reservation = Reservation.objects.create(
             date_from=date.today(),
             date_to=date.today() + timedelta(3),
-            name='Smith'
+            name='Smith',
+            owner=self.owner
         )
         self.reservation.rooms.set([self.room])
+        self.client.login(username=self.owner.username, password=self.password)
 
     def _search_uri(self, **kwargs):
         return self.uri + '?' + '&'.join(k + '=' + str(v)

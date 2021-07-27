@@ -1,5 +1,6 @@
 from decimal import Decimal
 from datetime import date, timedelta
+from django.contrib.auth.models import User
 
 from django.test import TestCase
 
@@ -137,6 +138,7 @@ class ReservationSerializerTest(TestCase):
     """
 
     def setUp(self):
+        self.owner = User.objects.create(username='test', last_name='Brown')
         self.reservation_valid_attributes = {
             'date_from': (date.today() + timedelta(7)).isoformat(),
             'date_to': (date.today() + timedelta(8)).isoformat(),
@@ -144,7 +146,8 @@ class ReservationSerializerTest(TestCase):
             'name': 'Brown',
             'rooms': ['T1'],
             'total_cost': 10,
-            'id': 1
+            'id': 1,
+            'owner': self.owner.username
         }
         self.reservation_deserializer_valid_data = {
             'date_from': date.today().isoformat(),
@@ -168,7 +171,8 @@ class ReservationSerializerTest(TestCase):
                 self.reservation_valid_attributes['date_from']),
             date_to=date.fromisoformat(
                 self.reservation_valid_attributes['date_to']),
-            name=self.reservation_valid_attributes['name'])
+            name=self.reservation_valid_attributes['name'],
+            owner=self.owner)
         self.reservation.rooms.set([self.room_t])
         self.serializer = ReservationSerializer(self.reservation)
         self.deserializer = ReservationSerializer(
@@ -187,7 +191,7 @@ class ReservationSerializerTest(TestCase):
 
     def test_deserializer_creates_valid_instance(self):
         self.assertTrue(self.deserializer.is_valid())
-        reservation = self.deserializer.save()
+        reservation = self.deserializer.save(owner=self.owner)
         self.assertEqual(reservation.date_from.isoformat(),
                          self.reservation_deserializer_valid_data['date_from'])
         self.assertEqual(reservation.date_to.isoformat(),

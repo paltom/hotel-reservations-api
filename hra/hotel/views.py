@@ -1,13 +1,18 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models.expressions import F
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.viewsets import ModelViewSet
 
 from hotel.exceptions import RoomDeleteError
 from hotel.models import Reservation, Room
-from hotel.serializers import ReservationSerializer, RoomSerializer
+from hotel.permissions import (ReservationViewSetPermissions,
+                               RoomViewSetPermissions, UserViewSetPermissions,
+                               is_staff)
+from hotel.serializers import (ReservationSerializer, RoomSerializer,
+                               UserSerializer)
 
 
 class RoomViewSet(ModelViewSet):
@@ -16,6 +21,7 @@ class RoomViewSet(ModelViewSet):
     """
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
+    permission_classes = [RoomViewSetPermissions]
 
     def destroy(self, request, pk: str):
         if Reservation.objects.filter(rooms__number__contains=pk).count():
@@ -29,6 +35,7 @@ class ReservationViewSet(ModelViewSet):
     """
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializer
+    permission_classes = [ReservationViewSetPermissions]
 
     def partial_update(self, request, pk: int, **kwargs):
         # to satisfy validator, add rooms from reservation if they're not
@@ -42,9 +49,14 @@ class ReservationViewSet(ModelViewSet):
         """
         Provides searching capabilities.
         """
+        user = self.request.user
         queryset = super().get_queryset()
         if self.action == 'list':
             # do searching only in list view, not in detail view
+            if not is_staff(user):
+                # limit reservations on the list only to those that user is
+                # owner of
+                queryset = queryset.filter(owner=user)
             queryset = self._search_queryset(queryset)
         return queryset
 
@@ -84,3 +96,20 @@ class ReservationViewSet(ModelViewSet):
                 date_to=F('date_from') +
                 timedelta(duration))
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        if 'name' not in self.request.data:
+            self.request.data['name'] = self.request.user.last_name
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class UserViewSet(ModelViewSet):
+    """
+    Viewset providing endpoints for handling Users.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [UserViewSetPermissions]

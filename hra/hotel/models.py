@@ -40,6 +40,10 @@ class Reservation(models.Model):
         Room,
         # symmetrical=False,
         related_name='reservations')
+    owner = models.ForeignKey(
+        'auth.User',
+        related_name='reservations',
+        on_delete=models.CASCADE)
 
     @property
     def total_cost(self):

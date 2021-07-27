@@ -1,5 +1,7 @@
 from datetime import date
 
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.db.models import Q
 from rest_framework import serializers
 
@@ -19,6 +21,9 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    name = serializers.CharField(required=False, max_length=100)
+
     class Meta:
         model = Reservation
         fields = [
@@ -28,7 +33,8 @@ class ReservationSerializer(serializers.ModelSerializer):
             'name',
             'rooms',
             'total_cost',
-            'duration']
+            'duration',
+            'owner']
         read_only_fields = ['id']
 
     def validate_date_from(self, value: date):
@@ -81,3 +87,26 @@ class ReservationSerializer(serializers.ModelSerializer):
                 pk=self.instance.id)
         # If any reservation passes above test, room is not available
         return not reservation_collisions.count()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    reservations = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True)
+    password = serializers.CharField(
+        write_only=True, required=True, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'password',
+            'reservations',
+            'first_name',
+            'last_name']
+        read_only_fields = ['id']
+
+    def create(self, validated_data):
+        validated_data['password'] = make_password(
+            validated_data.get('password'))
+        return super(UserSerializer, self).create(validated_data)

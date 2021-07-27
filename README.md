@@ -80,8 +80,38 @@ docker run -d -p 8000:8000 hotel-api
 
 API should now be visible under http://localhost:8000. Thanks to browseable API, it can be interacted with using web browser.
 
+## Users and permissions
+
+Basic authentication schema and permissions policy are implemented.
+
+Note: This is not very well tested yet.
+
+In order to use, one needs to perform manual steps to setup users:
+1.  Create admin
+    ```bash
+    python manage.py createsuperuser
+    ```
+2.  Create staff members and regular users
+
+    'staff' group is created at application startup (data migration). Note, however, that in order to add user to 'staff' group, one has to manually update database, e.g.
+    ```sql
+    INSERT into auth_user_groups('user_id', 'group_id') VALUES (2, 1);
+    ```
+
+
+Permission policy details:
+1.  Admin and 'staff' groups members can perform all actions on Rooms, Reservations and Users
+2.  User can
+    -   list rooms
+    -   manage (list, update, delete) reservations that he is owner of
+    -   create new reservation
+        
+        By default, user's `last_name` is used if `name` is not explicitly provided during creating Reservation.
+    
+    -   view account details (if own user id is known)
+
 ## Things to improve
-- [ ] Add users, authentication and security
+- [ ] Users endpoint and permissions (e.g. reuse permission classes provided by Django, secure passing password)
 - [ ] Use real, separate DB, not default embedded SQLite
 - [ ] Turn off `DEBUG` in `hra/settings.py`
 - [ ] Search using [django-filter](https://django-filter.readthedocs.io/en/latest/index.html) library

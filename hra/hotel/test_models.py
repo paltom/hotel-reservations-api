@@ -1,6 +1,7 @@
 import unittest
 from datetime import date, timedelta
 from decimal import Decimal
+from django.contrib.auth.models import User
 
 from django.db.utils import IntegrityError
 from django.test import TestCase
@@ -89,12 +90,14 @@ class ReservationTest(TestCase):
             room_class=self.room_class_t, number='1T')
         self.room_s = Room.objects.create(
             room_class=self.room_class_s, number='1S')
+        self.owner = User.objects.create(username='test', last_name='Brown')
 
     def test_reservation(self):
         Reservation.objects.create(
             name='Smith',
             date_from=date.today(),
             date_to=date.today() + timedelta(1),
+            owner=self.owner
         ).rooms.set([self.room_s, self.room_t])
         reservation = Reservation.objects.get(pk=1)
         self.assertEqual(reservation.name, 'Smith')
@@ -115,6 +118,7 @@ class ReservationTest(TestCase):
                 name='Smith',
                 date_from=date.today(),
                 date_to=date.today() + timedelta(1),
+                owner=self.owner
             )
 
     @unittest.expectedFailure
@@ -125,6 +129,8 @@ class ReservationTest(TestCase):
             name='Smith',
             date_from=date.today(),
             date_to=date.today() + timedelta(1),
+            owner=self.owner
         ).rooms.set([self.room_s, self.room_t])
+        self.assertEqual(Reservation.objects.count(), 1)
         self.room_s.delete()
         self.assertEqual(Reservation.objects.count(), 0)
