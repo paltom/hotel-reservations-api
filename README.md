@@ -81,9 +81,10 @@ docker run -d -p 8000:8000 hotel-api
 API should now be visible under http://localhost:8000. Thanks to browseable API, it can be interacted with using web browser.
 
 ## Things to improve
-- [ ] Add authentication and security
+- [ ] Add users, authentication and security
 - [ ] Use real, separate DB, not default embedded SQLite
 - [ ] Turn off `DEBUG` in `hra/settings.py`
 - [ ] Search using [django-filter](https://django-filter.readthedocs.io/en/latest/index.html) library
+- [ ] Descriptive and full error messages (e.g from all validations)
 
 ## Useful links
