@@ -109,6 +109,7 @@ Permission policy details:
         By default, user's `last_name` is used if `name` is not explicitly provided during creating Reservation.
     
     -   view account details (if own user id is known)
+3.  Anonymous users can create a new user (register) only
 
 ## Things to improve
 - [ ] Users endpoint and permissions (e.g. reuse permission classes provided by Django, secure passing password)
